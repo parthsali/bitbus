@@ -71,7 +71,7 @@ const features = [
 const stack = [
   { label: "Dashboard", sub: "Next.js + shadcn/ui", icon: Layout },
   { label: "API", sub: "Go + Fiber", icon: Code2 },
-  { label: "Agent", sub: "Python on Raspberry Pi", icon: Terminal },
+  { label: "Agent", sub: "Go on Raspberry Pi", icon: Terminal },
   { label: "Transport", sub: "WebSocket + REST", icon: Wifi },
 ];
 
