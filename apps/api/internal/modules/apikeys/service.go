@@ -61,7 +61,7 @@ func (s *Service) Create(ctx context.Context, userID, name string) (*CreateResul
 	if err != nil {
 		return nil, fmt.Errorf("hash key: %w", err)
 	}
-	prefix := "rk_" + plain[:8]
+	prefix := "bit_" + plain[:8]
 	k, err := s.queries.CreateAPIKey(ctx, store.CreateAPIKeyParams{
 		UserID:    userID,
 		Name:      name,
