@@ -10,7 +10,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
 function getToken() {
   if (typeof document === "undefined") return "";
-  const m = document.cookie.match(/(?:^|;\s*)relay_token=([^;]+)/);
+  const m = document.cookie.match(/(?:^|;\s*)bitbus_token=([^;]+)/);
   return m?.[1] ?? "";
 }
 
@@ -79,7 +79,7 @@ export default function UpdatesPage() {
           <div className="overflow-hidden rounded-lg border border-border">
             <div className="flex items-center gap-4 px-4 py-3.5">
               <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
-              <p className="flex-1 text-sm font-mono">relay-agent</p>
+              <p className="flex-1 text-sm font-mono">bitbus-agent</p>
               <p className="text-xs text-muted-foreground">
                 {agentVersion ?? "—"}
               </p>
@@ -110,7 +110,7 @@ export default function UpdatesPage() {
                   Binary URL
                 </label>
                 <Input
-                  placeholder="https://github.com/.../relay-agent"
+                  placeholder="https://github.com/.../bitbus-agent"
                   value={updateURL}
                   onChange={(e) => setUpdateURL(e.target.value)}
                   className="h-8 text-sm font-mono"

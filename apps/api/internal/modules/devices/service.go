@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/parthsali/relay/apps/api/internal/hub"
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/hub"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 // Service handles device registration and management.

@@ -9,12 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/parthsali/relay/apps/agent/internal/config"
-	"github.com/parthsali/relay/apps/agent/internal/display"
-	"github.com/parthsali/relay/apps/agent/internal/spotify"
-	"github.com/parthsali/relay/apps/agent/internal/telemetry"
-	"github.com/parthsali/relay/apps/agent/internal/updater"
-	"github.com/parthsali/relay/apps/agent/internal/wsclient"
+	"github.com/parthsali/bitbus/apps/agent/internal/config"
+	"github.com/parthsali/bitbus/apps/agent/internal/display"
+	"github.com/parthsali/bitbus/apps/agent/internal/spotify"
+	"github.com/parthsali/bitbus/apps/agent/internal/telemetry"
+	"github.com/parthsali/bitbus/apps/agent/internal/updater"
+	"github.com/parthsali/bitbus/apps/agent/internal/wsclient"
 )
 
 // Version is set at build time via -ldflags "-X main.Version=x.y.z".
@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("config: %v", err)
 	}
-	log.Printf("relay-agent %s starting (device=%s)", Version, cfg.DeviceID)
+	log.Printf("bitbus-agent %s starting (device=%s)", Version, cfg.DeviceID)
 
 	disp := display.NewStubDisplay(cfg.Brightness)
 	defer disp.Close()

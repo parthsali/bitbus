@@ -2,8 +2,8 @@ package devices
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/parthsali/relay/apps/api/internal/middleware"
-	"github.com/parthsali/relay/apps/api/internal/response"
+	"github.com/parthsali/bitbus/apps/api/internal/middleware"
+	"github.com/parthsali/bitbus/apps/api/internal/response"
 )
 
 func userIDFrom(c *gin.Context) string {

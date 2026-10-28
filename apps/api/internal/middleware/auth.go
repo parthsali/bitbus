@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/parthsali/relay/apps/api/internal/response"
+	"github.com/parthsali/bitbus/apps/api/internal/response"
 )
 
 // Context keys injected by the Auth middleware.

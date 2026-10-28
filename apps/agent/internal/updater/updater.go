@@ -31,7 +31,7 @@ func Update(downloadURL, expectedSHA256 string) error {
 	}
 
 	// Write to temp file while hashing in parallel.
-	tmp, err := os.CreateTemp("", "relay-agent-update-*")
+	tmp, err := os.CreateTemp("", "bitbus-agent-update-*")
 	if err != nil {
 		return fmt.Errorf("create temp: %w", err)
 	}
@@ -75,7 +75,7 @@ func Update(downloadURL, expectedSHA256 string) error {
 
 func restart() {
 	log.Println("updater: requesting systemd restart")
-	if err := exec.Command("systemctl", "restart", "relay-agent").Run(); err != nil {
+	if err := exec.Command("systemctl", "restart", "bitbus-agent").Run(); err != nil {
 		// Fallback: exit cleanly so systemd Restart=always brings up the new binary.
 		log.Printf("updater: systemctl failed (%v), exiting for systemd restart", err)
 		os.Exit(0)

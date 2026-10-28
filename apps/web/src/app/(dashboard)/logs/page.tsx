@@ -77,7 +77,7 @@ export default function LogsPage() {
       .join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-    a.download = `relay-logs-${Date.now()}.txt`;
+    a.download = `bitbus-logs-${Date.now()}.txt`;
     a.click();
   }
 

@@ -30,7 +30,7 @@ export default function LoginPage() {
       {/* Logo */}
       <div className="mb-10 flex items-center gap-2.5">
         <Grip className="size-5 text-foreground" />
-        <span className="text-base font-semibold tracking-tight">Relay</span>
+        <span className="text-base font-semibold tracking-tight">Bitbus</span>
       </div>
 
       {/* Card */}
@@ -88,7 +88,7 @@ export default function LoginPage() {
       </div>
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Relay — Control your display from anywhere.
+        Bitbus — Control your display from anywhere.
       </p>
     </div>
   );

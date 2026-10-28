@@ -12,10 +12,10 @@ import (
 	"github.com/gorilla/websocket"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/parthsali/relay/apps/api/internal/hub"
-	spotifyModule "github.com/parthsali/relay/apps/api/internal/modules/spotify"
-	"github.com/parthsali/relay/apps/api/internal/response"
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/hub"
+	spotifyModule "github.com/parthsali/bitbus/apps/api/internal/modules/spotify"
+	"github.com/parthsali/bitbus/apps/api/internal/response"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 const (

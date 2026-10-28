@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 type Service struct {

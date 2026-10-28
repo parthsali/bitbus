@@ -15,7 +15,7 @@ function CallbackHandler() {
       return;
     }
     const maxAge = 60 * 60 * 24; // 24 hours
-    document.cookie = `relay_token=${token}; path=/; max-age=${maxAge}; samesite=lax`;
+    document.cookie = `bitbus_token=${token}; path=/; max-age=${maxAge}; samesite=lax`;
     router.replace("/");
   }, [searchParams, router]);
 

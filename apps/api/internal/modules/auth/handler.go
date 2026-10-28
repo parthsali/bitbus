@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 
-	"github.com/parthsali/relay/apps/api/internal/response"
+	"github.com/parthsali/bitbus/apps/api/internal/response"
 )
 
 // Handler exposes the Google OAuth flow and logout.

@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/parthsali/relay/apps/api/internal/hub"
-	spotifyModule "github.com/parthsali/relay/apps/api/internal/modules/spotify"
+	"github.com/parthsali/bitbus/apps/api/internal/hub"
+	spotifyModule "github.com/parthsali/bitbus/apps/api/internal/modules/spotify"
 )
 
 const spotifyPollInterval = 5 * time.Second

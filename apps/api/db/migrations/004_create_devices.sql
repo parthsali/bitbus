@@ -1,8 +1,8 @@
--- Registered Relay devices (one Pi per user for now, schema supports multiples).
+-- Registered Bitbus devices (one Pi per user for now, schema supports multiples).
 CREATE TABLE IF NOT EXISTS devices (
     id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id       UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name          TEXT        NOT NULL DEFAULT 'My Relay',
+    name          TEXT        NOT NULL DEFAULT 'My Bitbus Device',
     secret_hash   TEXT        NOT NULL,         -- bcrypt hash of the plain secret
     agent_version TEXT,
     last_seen_at  TIMESTAMPTZ,

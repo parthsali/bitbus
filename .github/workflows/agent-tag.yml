@@ -64,15 +64,15 @@ jobs:
           mkdir -p dist
           for TARGET in linux/arm64 linux/arm linux/amd64; do
             OS="${TARGET%%/*}" ARCH="${TARGET##*/}"
-            echo "Building relay-agent_${OS}_${ARCH}…"
+            echo "Building bitbus-agent_${OS}_${ARCH}…"
             GOOS="$OS" GOARCH="$ARCH" go build \
               -trimpath -ldflags "$LDFLAGS" \
-              -o "dist/relay-agent_${OS}_${ARCH}" ./cmd/api
+              -o "dist/bitbus-agent_${OS}_${ARCH}" ./cmd/api
           done
 
       - name: Generate checksums
         working-directory: apps/agent/dist
-        run: sha256sum relay-agent_* > sha256sums.txt && cat sha256sums.txt
+        run: sha256sum bitbus-agent_* > sha256sums.txt && cat sha256sums.txt
 
       - name: Summary
         run: |

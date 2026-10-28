@@ -22,7 +22,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
 function getToken() {
   if (typeof document === "undefined") return "";
-  const m = document.cookie.match(/(?:^|;\s*)relay_token=([^;]+)/);
+  const m = document.cookie.match(/(?:^|;\s*)bitbus_token=([^;]+)/);
   return m?.[1] ?? "";
 }
 
@@ -137,7 +137,7 @@ export default function DevicePage() {
       <div className="border-b border-border px-8 py-6">
         <h1 className="text-xl font-semibold tracking-tight">Devices</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Register and monitor Relay Pi agents.
+          Register and monitor Bitbus Pi agents.
         </p>
       </div>
 
@@ -154,7 +154,7 @@ export default function DevicePage() {
               </Label>
               <Input
                 id="device-name"
-                placeholder="relay-pi"
+                placeholder="bitbus-pi"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && register()}
@@ -177,8 +177,8 @@ export default function DevicePage() {
               </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 overflow-x-auto rounded bg-muted px-3 py-2 font-mono text-xs">
-                  RELAY_DEVICE_ID={secret.id}
-                  {"\n"}RELAY_DEVICE_SECRET={secret.secret}
+                  BITBUS_DEVICE_ID={secret.id}
+                  {"\n"}BITBUS_DEVICE_SECRET={secret.secret}
                 </code>
                 <Button variant="outline" size="sm" onClick={copySecret}>
                   {copied ? (

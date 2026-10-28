@@ -11,7 +11,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
 function getToken() {
   if (typeof document === "undefined") return "";
-  const m = document.cookie.match(/(?:^|;\s*)relay_token=([^;]+)/);
+  const m = document.cookie.match(/(?:^|;\s*)bitbus_token=([^;]+)/);
   return m?.[1] ?? "";
 }
 

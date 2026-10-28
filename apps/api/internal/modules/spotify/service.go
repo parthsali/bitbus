@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 const (

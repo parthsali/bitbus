@@ -5,7 +5,7 @@ const PUBLIC = ["/login", "/auth/callback"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("relay_token")?.value;
+  const token = request.cookies.get("bitbus_token")?.value;
 
   const isPublic = PUBLIC.some((p) => pathname.startsWith(p));
 

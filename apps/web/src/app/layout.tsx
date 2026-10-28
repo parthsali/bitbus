@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Relay",
+  title: "Bitbus",
   description: "Control your display from anywhere.",
 };
 

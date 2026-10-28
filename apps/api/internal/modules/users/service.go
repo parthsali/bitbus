@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 // Service contains business logic for the users domain.

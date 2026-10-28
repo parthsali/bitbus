@@ -1,5 +1,5 @@
 // Package wsclient contains the WebSocket client and the canonical message
-// protocol shared between the Pi agent and the Relay backend.
+// protocol shared between the Pi agent and the Bitbus backend.
 //
 // Every frame is a JSON object with this envelope:
 //
@@ -83,9 +83,9 @@ type DisplaySetBrightnessPayload struct {
 
 // AgentUpdatePayload carries the URL and checksum of a new agent binary.
 type AgentUpdatePayload struct {
-	Version    string `json:"version"`
-	URL        string `json:"url"`
-	SHA256     string `json:"sha256"`
+	Version string `json:"version"`
+	URL     string `json:"url"`
+	SHA256  string `json:"sha256"`
 }
 
 // ErrorPayload is received from the backend when a message is rejected.

@@ -2,8 +2,8 @@ package queue
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/parthsali/relay/apps/api/internal/middleware"
-	"github.com/parthsali/relay/apps/api/internal/response"
+	"github.com/parthsali/bitbus/apps/api/internal/middleware"
+	"github.com/parthsali/bitbus/apps/api/internal/response"
 )
 
 type Handler struct{ svc *Service }
@@ -35,10 +35,10 @@ func (h *Handler) List(c *gin.Context) {
 }
 
 type createRequest struct {
-	Title     string  `json:"title"    binding:"required"`
-	Source    string  `json:"source"   binding:"required"`
-	DurationS *int32  `json:"duration_s"`
-	Position  int32   `json:"position"`
+	Title     string `json:"title"    binding:"required"`
+	Source    string `json:"source"   binding:"required"`
+	DurationS *int32 `json:"duration_s"`
+	Position  int32  `json:"position"`
 }
 
 func (h *Handler) Create(c *gin.Context) {

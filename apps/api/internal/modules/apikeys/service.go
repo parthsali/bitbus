@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 type Service struct {
@@ -30,8 +30,8 @@ type SafeAPIKey struct {
 
 // CreateResult holds the one-time plain key shown on creation.
 type CreateResult struct {
-	Key    SafeAPIKey `json:"key"`
-	PlainKey string   `json:"plain_key"` // shown once
+	Key      SafeAPIKey `json:"key"`
+	PlainKey string     `json:"plain_key"` // shown once
 }
 
 func (s *Service) List(ctx context.Context, userID string) ([]SafeAPIKey, error) {

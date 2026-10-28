@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
 
-	"github.com/parthsali/relay/apps/api/internal/store"
+	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
 
 type Service struct {

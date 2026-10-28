@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	// BackendURL is the WebSocket URL of the backend, e.g. wss://api.relay.parthsali.com/ws
+	// BackendURL is the WebSocket URL of the backend, e.g. wss://api.bitbus.tech/ws
 	BackendURL string `json:"backend_url"`
 	// DeviceID is the UUID assigned during device registration.
 	DeviceID string `json:"device_id"`
@@ -21,12 +21,12 @@ type Config struct {
 	MatrixCols int `json:"matrix_cols"`
 }
 
-const defaultConfigPath = "/etc/relay-agent/config.json"
+const defaultConfigPath = "/etc/bitbus-agent/config.json"
 
-// Load reads config from the path in RELAY_CONFIG_PATH env var, or the default path.
+// Load reads config from the path in BITBUS_CONFIG_PATH env var, or the default path.
 // Individual fields can be overridden by environment variables.
 func Load() (*Config, error) {
-	path := os.Getenv("RELAY_CONFIG_PATH")
+	path := os.Getenv("BITBUS_CONFIG_PATH")
 	if path == "" {
 		path = defaultConfigPath
 	}
@@ -44,18 +44,18 @@ func Load() (*Config, error) {
 	}
 
 	// Environment variable overrides (useful for containers / testing).
-	if v := os.Getenv("RELAY_BACKEND_URL"); v != "" {
+	if v := os.Getenv("BITBUS_BACKEND_URL"); v != "" {
 		cfg.BackendURL = v
 	}
-	if v := os.Getenv("RELAY_DEVICE_ID"); v != "" {
+	if v := os.Getenv("BITBUS_DEVICE_ID"); v != "" {
 		cfg.DeviceID = v
 	}
-	if v := os.Getenv("RELAY_DEVICE_SECRET"); v != "" {
+	if v := os.Getenv("BITBUS_DEVICE_SECRET"); v != "" {
 		cfg.DeviceSecret = v
 	}
 
 	if cfg.BackendURL == "" {
-		return nil, fmt.Errorf("backend_url is required (set RELAY_BACKEND_URL or config.json)")
+		return nil, fmt.Errorf("backend_url is required (set BITBUS_BACKEND_URL or config.json)")
 	}
 	if cfg.DeviceID == "" || cfg.DeviceSecret == "" {
 		return nil, fmt.Errorf("device_id and device_secret are required")

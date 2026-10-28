@@ -22,7 +22,7 @@ interface JwtUser {
 
 function getTokenCookie(): string | undefined {
   if (typeof document === "undefined") return undefined;
-  const m = document.cookie.match(/(?:^|;\s*)relay_token=([^;]+)/);
+  const m = document.cookie.match(/(?:^|;\s*)bitbus_token=([^;]+)/);
   return m?.[1];
 }
 
@@ -55,7 +55,7 @@ export function TopNav() {
     : "?";
 
   function handleLogout() {
-    document.cookie = "relay_token=; Max-Age=0; path=/";
+    document.cookie = "bitbus_token=; Max-Age=0; path=/";
     router.push("/login");
   }
 
@@ -64,7 +64,7 @@ export function TopNav() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2.5">
         <Grip className="size-4 text-foreground" />
-        <span className="text-sm font-semibold tracking-tight">Relay</span>
+        <span className="text-sm font-semibold tracking-tight">Bitbus</span>
       </Link>
 
       {/* Right */}

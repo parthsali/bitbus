@@ -20,7 +20,7 @@ const MAX_RECONNECT_MS = 30_000;
 
 function getToken(): string {
   if (typeof document === "undefined") return "";
-  const m = document.cookie.match(/(?:^|;\s*)relay_token=([^;]+)/);
+  const m = document.cookie.match(/(?:^|;\s*)bitbus_token=([^;]+)/);
   return m?.[1] ?? "";
 }
 
@@ -32,7 +32,7 @@ function buildWsUrl(): string {
 }
 
 /**
- * Maintains a persistent WebSocket connection to the Relay backend.
+ * Maintains a persistent WebSocket connection to the Bitbus backend.
  * Reconnects automatically with exponential back-off on close/error.
  * Returns { connected } so callers can show a status indicator.
  */

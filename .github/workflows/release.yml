@@ -74,9 +74,9 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ghcr.io/${{ github.repository_owner }}/relay-api:${{ needs.setup.outputs.version }}
-            ghcr.io/${{ github.repository_owner }}/relay-api:${{ needs.setup.outputs.minor }}
-            ghcr.io/${{ github.repository_owner }}/relay-api:latest
+            ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ needs.setup.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ needs.setup.outputs.minor }}
+            ghcr.io/${{ github.repository_owner }}/bitbus-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -105,12 +105,12 @@ jobs:
             OS="${TARGET%%/*}" ARCH="${TARGET##*/}"
             GOOS="$OS" GOARCH="$ARCH" go build \
               -trimpath -ldflags "$LDFLAGS" \
-              -o "dist/relay-agent_${OS}_${ARCH}" ./cmd/api
+              -o "dist/bitbus-agent_${OS}_${ARCH}" ./cmd/api
           done
 
       - name: Checksums
         working-directory: apps/agent/dist
-        run: sha256sum relay-agent_* > sha256sums.txt
+        run: sha256sum bitbus-agent_* > sha256sums.txt
 
       - uses: actions/upload-artifact@v4
         with:
@@ -149,35 +149,35 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.setup.outputs.version }}
-          name: "Relay v${{ needs.setup.outputs.version }}"
+          name: "Bitbus v${{ needs.setup.outputs.version }}"
           prerelease: false
           generate_release_notes: true
           body: |
             ### API - `api/v${{ needs.setup.outputs.version }}`
             ```bash
-            docker pull ghcr.io/${{ github.repository_owner }}/relay-api:${{ needs.setup.outputs.version }}
+            docker pull ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ needs.setup.outputs.version }}
             # pin to minor (updated on future patches):
-            docker pull ghcr.io/${{ github.repository_owner }}/relay-api:${{ needs.setup.outputs.minor }}
+            docker pull ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ needs.setup.outputs.minor }}
             ```
 
             ### Agent - `agent/v${{ needs.setup.outputs.version }}`
             ```bash
             VERSION="${{ needs.setup.outputs.version }}"
-            curl -fsSL "https://github.com/${{ github.repository }}/releases/download/v${VERSION}/relay-agent_linux_arm64" \
-              -o /usr/local/bin/relay-agent && chmod +x /usr/local/bin/relay-agent
+            curl -fsSL "https://github.com/${{ github.repository }}/releases/download/v${VERSION}/bitbus-agent_linux_arm64" \
+              -o /usr/local/bin/bitbus-agent && chmod +x /usr/local/bin/bitbus-agent
             ```
 
             | Binary | Target |
             |--------|--------|
-            | `relay-agent_linux_arm64` | Pi Zero 2 W, Pi 4/5 (64-bit) |
-            | `relay-agent_linux_arm`   | Pi Zero W (32-bit ARMv6/7)   |
-            | `relay-agent_linux_amd64` | x86-64 dev / CI               |
+            | `bitbus-agent_linux_arm64` | Pi Zero 2 W, Pi 4/5 (64-bit) |
+            | `bitbus-agent_linux_arm`   | Pi Zero W (32-bit ARMv6/7)   |
+            | `bitbus-agent_linux_amd64` | x86-64 dev / CI               |
 
             > **OTA:** Dashboard -> Updates -> version `${{ needs.setup.outputs.version }}` + binary URL + SHA-256 from `sha256sums.txt` -> Push Update.
           files: |
-            dist/relay-agent_linux_arm64
-            dist/relay-agent_linux_arm
-            dist/relay-agent_linux_amd64
+            dist/bitbus-agent_linux_arm64
+            dist/bitbus-agent_linux_arm
+            dist/bitbus-agent_linux_amd64
             dist/sha256sums.txt
 
       - name: Summary
@@ -188,4 +188,4 @@ jobs:
           echo "| Release | \`v${{ needs.setup.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| API tag | \`api/v${{ needs.setup.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Agent tag | \`agent/v${{ needs.setup.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Docker | \`ghcr.io/${{ github.repository_owner }}/relay-api:${{ needs.setup.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Docker | \`ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ needs.setup.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"

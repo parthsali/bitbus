@@ -1,4 +1,4 @@
-module github.com/parthsali/relay/apps/api
+module github.com/parthsali/bitbus/apps/api
 
 go 1.25.8
 
