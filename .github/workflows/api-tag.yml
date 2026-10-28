@@ -1,4 +1,4 @@
-name: "API: Tag, Build & Deploy"
+name: "API: Build & Deploy"
 
 on:
   push:
@@ -12,48 +12,17 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
   packages: write
   id-token: write
 
 jobs:
-  tag-and-push:
-    name: Patch tag + Docker image
+  build-and-push:
+    name: Build + push Docker image
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.ver.outputs.next }}
-      image: ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ steps.ver.outputs.next }}
 
     steps:
-      - name: Checkout (full history for tags)
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Resolve next patch version
-        id: ver
-        run: |
-          git fetch --tags
-          LATEST=$(git tag -l "api/v*" | sort -V | tail -1)
-          if [ -z "$LATEST" ]; then
-            NEXT="0.1.0"
-          else
-            V="${LATEST#api/v}"
-            MAJ=$(echo "$V" | cut -d. -f1)
-            MIN=$(echo "$V" | cut -d. -f2)
-            PAT=$(echo "$V" | cut -d. -f3)
-            NEXT="${MAJ}.${MIN}.$((PAT + 1))"
-          fi
-          echo "next=${NEXT}"                        >> "$GITHUB_OUTPUT"
-          echo "minor=$(echo $NEXT | cut -d. -f1-2)" >> "$GITHUB_OUTPUT"
-          echo "Resolved: ${LATEST:-none} → api/v${NEXT}"
-
-      - name: Push git tag
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "api/v${{ steps.ver.outputs.next }}"
-          git push origin "api/v${{ steps.ver.outputs.next }}"
 
       - name: Log in to ghcr.io
         uses: docker/login-action@v3
@@ -72,25 +41,14 @@ jobs:
           file: docker/api/Dockerfile
           push: true
           provenance: false
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ steps.ver.outputs.next }}
-            ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ steps.ver.outputs.minor }}
-            ghcr.io/${{ github.repository_owner }}/bitbus-api:latest
+          tags: ghcr.io/${{ github.repository_owner }}/bitbus-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Summary
-        run: |
-          echo "### API patch — v${{ steps.ver.outputs.next }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Tag   | \`api/v${{ steps.ver.outputs.next }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Image | \`ghcr.io/${{ github.repository_owner }}/bitbus-api:${{ steps.ver.outputs.next }}\` |" >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
-    needs: tag-and-push
+    needs: build-and-push
 
     steps:
       - name: Authenticate to Google Cloud
@@ -104,7 +62,7 @@ jobs:
         with:
           service: bitbus-api
           region: us-central1
-          image: ${{ needs.tag-and-push.outputs.image }}
+          image: ghcr.io/${{ github.repository_owner }}/bitbus-api:latest
           env_vars: |
             ENVIRONMENT=production
             FRONTEND_URL=https://app.bitbus.tech
@@ -122,12 +80,3 @@ jobs:
             --cpu=1
             --cpu-throttling
             --timeout=3600
-
-      - name: Summary
-        run: |
-          echo "### Deployed to Cloud Run" >> "$GITHUB_STEP_SUMMARY"
-          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Version | \`${{ needs.tag-and-push.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Service | \`bitbus-api\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Region  | \`us-central1\` |" >> "$GITHUB_STEP_SUMMARY"
