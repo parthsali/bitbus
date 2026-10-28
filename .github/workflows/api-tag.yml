@@ -106,7 +106,6 @@ jobs:
           region: us-central1
           image: ${{ needs.tag-and-push.outputs.image }}
           env_vars: |
-            PORT=8080
             ENVIRONMENT=production
             FRONTEND_URL=https://app.bitbus.tech
             GOOGLE_REDIRECT_URL=https://api.bitbus.tech/auth/google/callback
