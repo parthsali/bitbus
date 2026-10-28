@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   setup:
+    if: false
     name: Resolve next minor version
     runs-on: ubuntu-latest
     outputs:
@@ -52,6 +53,7 @@ jobs:
           echo "Resolved: minor=${HIGH_MIN} -> ${VERSION}"
 
   build-api:
+    if: false
     name: Build API image
     runs-on: ubuntu-latest
     needs: setup
@@ -81,6 +83,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-agent:
+    if: false
     name: Build Agent binaries
     runs-on: ubuntu-latest
     needs: setup
@@ -118,6 +121,7 @@ jobs:
           path: apps/agent/dist/
 
   release:
+    if: false
     name: Publish release
     runs-on: ubuntu-latest
     needs: [setup, build-api, build-agent]

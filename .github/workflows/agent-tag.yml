@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   tag:
+    if: false
     name: Patch tag + binaries
     runs-on: ubuntu-latest
 
