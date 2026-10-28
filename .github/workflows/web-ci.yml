@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - "apps/web/**"
+      - "apps/app/**"
 
   push:
     branches:
       - main
     paths:
       - "apps/web/**"
+      - "apps/app/**"
 
 jobs:
   validate-and-build:
