@@ -1,0 +1,32 @@
+import { ImageResponse } from "next/og";
+
+export const size = { width: 32, height: 32 };
+export const contentType = "image/png";
+
+export default function Icon() {
+  const dots = [
+    { cx: 5, cy: 5 },
+    { cx: 12, cy: 5 },
+    { cx: 19, cy: 5 },
+    { cx: 5, cy: 12 },
+    { cx: 12, cy: 12 },
+    { cx: 19, cy: 12 },
+    { cx: 5, cy: 19 },
+    { cx: 12, cy: 19 },
+    { cx: 19, cy: 19 },
+  ];
+
+  return new ImageResponse(
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="32"
+      height="32"
+      viewBox="0 0 24 24"
+    >
+      {dots.map(({ cx, cy }) => (
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" fill="#ffffff" />
+      ))}
+    </svg>,
+    { ...size },
+  );
+}
