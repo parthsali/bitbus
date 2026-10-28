@@ -1,12 +1,9 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-// Renders the Grip icon (2×3 dot grid) as the app favicon.
 export default function Icon() {
-  // 3 columns × 3 rows — full grid
   const dots = [
     { cx: 5, cy: 5 },
     { cx: 12, cy: 5 },
@@ -27,7 +24,7 @@ export default function Icon() {
       viewBox="0 0 24 24"
     >
       {dots.map(({ cx, cy }) => (
-        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" fill="#000000" />
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" fill="#ffffff" />
       ))}
     </svg>,
     { ...size },
