@@ -64,13 +64,16 @@ jobs:
           region: us-central1
           image: ghcr.io/${{ github.repository_owner }}/bitbus-api:latest
           env_vars: |
-            ENVIRONMENT=production
-            FRONTEND_URL=https://app.bitbus.tech
-            GOOGLE_REDIRECT_URL=https://api.bitbus.tech/auth/google/callback
+            ENVIRONMENT=${{ secrets.BITBUS_ENVIRONMENT }}
+            FRONTEND_URL=${{ secrets.BITBUS_FRONTEND_URL }}
+            GOOGLE_REDIRECT_URL=${{ secrets.BITBUS_GOOGLE_REDIRECT_URL }}
             DATABASE_URL=${{ secrets.BITBUS_DATABASE_URL }}
             JWT_SECRET=${{ secrets.BITBUS_JWT_SECRET }}
             GOOGLE_CLIENT_ID=${{ secrets.BITBUS_GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.BITBUS_GOOGLE_CLIENT_SECRET }}
+            SPOTIFY_CLIENT_ID=${{ secrets.BITBUS_SPOTIFY_CLIENT_ID }}
+            SPOTIFY_CLIENT_SECRET=${{ secrets.BITBUS_SPOTIFY_CLIENT_SECRET }}
+            SPOTIFY_REDIRECT_URL=${{ secrets.BITBUS_SPOTIFY_REDIRECT_URL }}
           flags: |
             --port=8080
             --allow-unauthenticated
