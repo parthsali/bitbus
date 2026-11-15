@@ -74,6 +74,8 @@ jobs:
             SPOTIFY_CLIENT_ID=${{ secrets.BITBUS_SPOTIFY_CLIENT_ID }}
             SPOTIFY_CLIENT_SECRET=${{ secrets.BITBUS_SPOTIFY_CLIENT_SECRET }}
             SPOTIFY_REDIRECT_URL=${{ secrets.BITBUS_SPOTIFY_REDIRECT_URL }}
+            ADMIN_FRONTEND_URL=${{ secrets.BITBUS_ADMIN_FRONTEND_URL }}
+            ADMIN_EMAILS=${{ secrets.BITBUS_ADMIN_EMAILS }}
           flags: |
             --port=8080
             --allow-unauthenticated
