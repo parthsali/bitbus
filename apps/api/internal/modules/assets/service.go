@@ -26,7 +26,7 @@ func NewService(ctx context.Context, queries *store.Queries, gcsBucket string) (
 	if gcsBucket != "" {
 		// Uses Application Default Credentials automatically.
 		// Set GOOGLE_APPLICATION_CREDENTIALS for local dev; on GCP the attached SA is used.
-		c, err := storage.NewClient(ctx, option.WithScopes(storage.ScopeReadWrite))
+		c, err := storage.NewClient(ctx, option.WithScopes("https://www.googleapis.com/auth/cloud-platform"))
 		if err != nil {
 			return nil, fmt.Errorf("gcs client: %w", err)
 		}
