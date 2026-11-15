@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
@@ -22,12 +23,18 @@ type UserDetail struct {
 	HasSpotify  bool  `json:"has_spotify"`
 }
 
-type Service struct {
-	queries *store.Queries
+type AssetStorage interface {
+	GenerateSignedDownloadURL(gcsPath string) (string, error)
+	DeleteByPath(ctx context.Context, gcsPath string)
 }
 
-func NewService(queries *store.Queries) *Service {
-	return &Service{queries: queries}
+type Service struct {
+	queries      *store.Queries
+	assetStorage AssetStorage
+}
+
+func NewService(queries *store.Queries, assetStorage AssetStorage) *Service {
+	return &Service{queries: queries, assetStorage: assetStorage}
 }
 
 func (s *Service) GetStats(ctx context.Context) (Stats, error) {
@@ -111,12 +118,42 @@ func (s *Service) DeleteDevice(ctx context.Context, id string) error {
 	return s.queries.AdminDeleteDevice(ctx, id)
 }
 
-func (s *Service) ListAssets(ctx context.Context) ([]store.ListAllAssetsRow, error) {
-	return s.queries.ListAllAssets(ctx)
+type AssetView struct {
+	store.ListAllAssetsRow
+	URL string `json:"url"`
+}
+
+func (s *Service) ListAssets(ctx context.Context) ([]AssetView, error) {
+	rows, err := s.queries.ListAllAssets(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]AssetView, len(rows))
+	for i, r := range rows {
+		url, _ := s.assetStorage.GenerateSignedDownloadURL(r.GcsPath)
+		out[i] = AssetView{ListAllAssetsRow: r, URL: url}
+	}
+	return out, nil
+}
+
+func (s *Service) GetAssetURL(ctx context.Context, id string) (string, error) {
+	asset, err := s.queries.AdminGetAssetByID(ctx, id)
+	if err != nil {
+		return "", fmt.Errorf("asset not found: %w", err)
+	}
+	return s.assetStorage.GenerateSignedDownloadURL(asset.GcsPath)
 }
 
 func (s *Service) DeleteAsset(ctx context.Context, id string) error {
-	return s.queries.AdminDeleteAsset(ctx, id)
+	asset, err := s.queries.AdminGetAssetByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("asset not found: %w", err)
+	}
+	if err := s.queries.AdminDeleteAsset(ctx, id); err != nil {
+		return err
+	}
+	s.assetStorage.DeleteByPath(ctx, asset.GcsPath)
+	return nil
 }
 
 func (s *Service) ListApiKeys(ctx context.Context) ([]store.ListAllApiKeysRow, error) {

@@ -20,6 +20,7 @@ func userIDFrom(c *gin.Context) string { return c.GetString(middleware.UserIDKey
 //	DELETE /assets/:id
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	rg.GET("", h.List)
+	rg.GET("/:id/url", h.DownloadURL)
 	rg.POST("/upload-url", h.UploadURL)
 	rg.POST("/meta", h.CreateMeta)
 	rg.DELETE("/:id", h.Delete)
@@ -31,29 +32,43 @@ func (h *Handler) List(c *gin.Context) {
 		response.Internal(c, err)
 		return
 	}
-	// Enrich each asset with a public URL
 	type assetView struct {
 		ID        string `json:"id"`
 		Name      string `json:"name"`
 		Filename  string `json:"filename"`
 		MimeType  string `json:"mime_type"`
 		SizeBytes int64  `json:"size_bytes"`
-		PublicURL string `json:"public_url"`
+		URL       string `json:"url"`
 		CreatedAt string `json:"created_at"`
 	}
 	out := make([]assetView, len(items))
 	for i, a := range items {
+		url, _ := h.svc.GenerateSignedDownloadURL(a.GcsPath)
 		out[i] = assetView{
 			ID:        a.ID,
 			Name:      a.Name,
 			Filename:  a.Filename,
 			MimeType:  a.MimeType,
 			SizeBytes: a.SizeBytes,
-			PublicURL: h.svc.PublicURL(a.GcsPath),
+			URL:       url,
 			CreatedAt: a.CreatedAt.String(),
 		}
 	}
 	response.OK(c, gin.H{"assets": out})
+}
+
+func (h *Handler) DownloadURL(c *gin.Context) {
+	asset, err := h.svc.Get(c.Request.Context(), c.Param("id"), userIDFrom(c))
+	if err != nil {
+		response.NotFound(c, "asset not found")
+		return
+	}
+	url, err := h.svc.GenerateSignedDownloadURL(asset.GcsPath)
+	if err != nil {
+		response.Internal(c, err)
+		return
+	}
+	response.OK(c, gin.H{"url": url})
 }
 
 type createMetaRequest struct {

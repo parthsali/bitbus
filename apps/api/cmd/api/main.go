@@ -140,7 +140,7 @@ func main() {
 	}
 
 	// Admin routes — require both valid JWT and is_admin = true
-	adminHandler := adminModule.NewHandler(adminModule.NewService(queries))
+	adminHandler := adminModule.NewHandler(adminModule.NewService(queries, assetsSvc))
 	adminGroup := r.Group("/admin")
 	adminGroup.Use(middleware.Auth(cfg.JWTSecret))
 	adminGroup.Use(middleware.Admin())

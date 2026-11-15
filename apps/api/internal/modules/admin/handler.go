@@ -25,6 +25,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 	rg.DELETE("/devices/:id", h.DeleteDevice)
 
 	rg.GET("/assets", h.ListAssets)
+	rg.GET("/assets/:id/url", h.AssetURL)
 	rg.DELETE("/assets/:id", h.DeleteAsset)
 
 	rg.GET("/api-keys", h.ListApiKeys)
@@ -115,6 +116,15 @@ func (h *Handler) ListAssets(c *gin.Context) {
 		return
 	}
 	response.OK(c, assets)
+}
+
+func (h *Handler) AssetURL(c *gin.Context) {
+	url, err := h.svc.GetAssetURL(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		response.NotFound(c, "asset not found")
+		return
+	}
+	response.OK(c, gin.H{"url": url})
 }
 
 func (h *Handler) DeleteAsset(c *gin.Context) {

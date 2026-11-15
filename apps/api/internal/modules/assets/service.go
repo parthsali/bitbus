@@ -100,16 +100,36 @@ func (s *Service) CreateMeta(ctx context.Context, userID, name, filename, gcsPat
 }
 
 func (s *Service) Delete(ctx context.Context, id, userID string) error {
-	// Remove from DB first so the UI responds immediately.
-	// GCS object cleanup can be done via lifecycle rules or a background job.
-	return s.queries.DeleteAsset(ctx, store.DeleteAssetParams{ID: id, UserID: userID})
+	asset, err := s.queries.GetAsset(ctx, store.GetAssetParams{ID: id, UserID: userID})
+	if err != nil {
+		return fmt.Errorf("get asset: %w", err)
+	}
+	if err := s.queries.DeleteAsset(ctx, store.DeleteAssetParams{ID: id, UserID: userID}); err != nil {
+		return fmt.Errorf("delete asset: %w", err)
+	}
+	s.deleteObject(ctx, asset.GcsPath)
+	return nil
 }
 
-// PublicURL returns the GCS HTTPS URL for an asset.
-// Requires the bucket to have uniform public access or a public IAM binding on allUsers.
-func (s *Service) PublicURL(gcsPath string) string {
-	if s.gcsBucket == "" {
-		return ""
+func (s *Service) DeleteByPath(ctx context.Context, gcsPath string) {
+	s.deleteObject(ctx, gcsPath)
+}
+
+func (s *Service) deleteObject(ctx context.Context, gcsPath string) {
+	if !s.GCSEnabled() || gcsPath == "" {
+		return
 	}
-	return fmt.Sprintf("https://storage.googleapis.com/%s/%s", s.gcsBucket, gcsPath)
+	_ = s.gcsClient.Bucket(s.gcsBucket).Object(gcsPath).Delete(ctx)
+}
+
+func (s *Service) GenerateSignedDownloadURL(gcsPath string) (string, error) {
+	if !s.GCSEnabled() || gcsPath == "" {
+		return "", nil
+	}
+	opts := &storage.SignedURLOptions{
+		Method:  "GET",
+		Expires: time.Now().Add(1 * time.Hour),
+		Scheme:  storage.SigningSchemeV4,
+	}
+	return s.gcsClient.Bucket(s.gcsBucket).SignedURL(gcsPath, opts)
 }

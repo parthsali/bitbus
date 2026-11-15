@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  ExternalLink,
-  FileVideo,
-  ImageIcon,
-  Loader2,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { FileVideo, ImageIcon, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001";
 
@@ -37,7 +31,7 @@ type Asset = {
   filename: string;
   mime_type: string;
   size_bytes: number;
-  public_url: string;
+  url: string;
   created_at: string;
 };
 
@@ -51,6 +45,8 @@ export default function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [preview, setPreview] = useState<Asset | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -69,7 +65,6 @@ export default function AssetsPage() {
     setUploading(true);
     setError(null);
     try {
-      // Step 1 — get a signed GCS PUT URL from the API
       const urlRes = await apiFetch("/assets/upload-url", {
         method: "POST",
         body: JSON.stringify({ filename: file.name, mime_type: file.type }),
@@ -84,7 +79,6 @@ export default function AssetsPage() {
         gcs_path: string;
       };
 
-      // Step 2 — PUT the file directly to GCS (no auth header needed, it's in the signed URL)
       const putRes = await fetch(upload_url, {
         method: "PUT",
         headers: { "Content-Type": file.type || "application/octet-stream" },
@@ -92,7 +86,6 @@ export default function AssetsPage() {
       });
       if (!putRes.ok) throw new Error("GCS upload failed");
 
-      // Step 3 — register the asset metadata in the DB
       await apiFetch("/assets/meta", {
         method: "POST",
         body: JSON.stringify({
@@ -121,12 +114,20 @@ export default function AssetsPage() {
   }
 
   async function remove(id: string) {
+    if (!confirm("Delete this asset? This cannot be undone.")) return;
     const r = await apiFetch(`/assets/${id}`, { method: "DELETE" });
     if (r.ok) {
       toast.success("Asset deleted");
+      setPreview(null);
       load();
     } else toast.error("Failed to delete asset");
   }
+
+  const filtered = assets.filter(
+    (a) =>
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
+      a.filename.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="flex w-full flex-1 flex-col">
@@ -165,64 +166,134 @@ export default function AssetsPage() {
           </div>
         )}
 
+        {assets.length > 0 && (
+          <Input
+            placeholder="Search assets…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm"
+          />
+        )}
+
         {assets.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No assets yet. Click <strong>Upload</strong> to add an image or
-            video. Requires{" "}
-            <code className="font-mono text-xs">GCS_BUCKET</code> and{" "}
-            <code className="font-mono text-xs">
-              GOOGLE_APPLICATION_CREDENTIALS
-            </code>{" "}
-            to be set.
+            video.
           </p>
         ) : (
           <div className="overflow-hidden rounded-lg border border-border">
-            {assets.map((a) => {
-              const isVideo = a.mime_type.startsWith("video/");
-              const Icon = isVideo ? FileVideo : ImageIcon;
-              return (
-                <div
-                  key={a.id}
-                  className="flex items-center gap-4 border-b border-border px-4 py-3.5 last:border-0"
-                >
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                    <Icon className="size-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex flex-1 flex-col gap-0.5">
-                    <p className="font-mono text-sm font-medium">
-                      {a.filename}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{a.name}</p>
-                  </div>
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {a.mime_type.split("/")[1]}
-                  </span>
-                  <span className="w-20 text-right text-xs text-muted-foreground">
-                    {fmtBytes(a.size_bytes)}
-                  </span>
-                  {a.public_url && (
-                    <a
-                      href={a.public_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => remove(a.id)}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
+            {filtered.length === 0 ? (
+              <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+                No assets match your search.
+              </div>
+            ) : (
+              filtered.map((a) => {
+                const isImage = a.mime_type.startsWith("image/");
+                const isVideo = a.mime_type.startsWith("video/");
+                const Icon = isVideo ? FileVideo : ImageIcon;
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-center gap-4 border-b border-border px-4 py-3 last:border-0"
                   >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
-              );
-            })}
+                    {isImage && a.url ? (
+                      <button
+                        type="button"
+                        className="size-10 shrink-0 overflow-hidden rounded-md bg-muted"
+                        onClick={() => setPreview(a)}
+                      >
+                        <img
+                          src={a.url}
+                          alt={a.filename}
+                          className="size-full object-cover"
+                        />
+                      </button>
+                    ) : (
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted">
+                        <Icon className="size-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      className="flex flex-1 flex-col gap-0.5 text-left"
+                      onClick={() => a.url && setPreview(a)}
+                    >
+                      <p className="truncate text-sm font-medium">
+                        {a.filename}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {a.mime_type.split("/")[1]?.toUpperCase()} &middot;{" "}
+                        {fmtBytes(a.size_bytes)}
+                      </p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => remove(a.id)}
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </button>
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
       </div>
+
+      {preview && (
+        <div
+          role="dialog"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setPreview(null)}
+          onKeyDown={(e) => e.key === "Escape" && setPreview(null)}
+        >
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: stop propagation on modal content */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard handled on parent */}
+          <div
+            className="relative mx-4 max-h-[85vh] max-w-3xl overflow-hidden rounded-lg border border-border bg-background shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <p className="truncate text-sm font-medium">{preview.filename}</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 text-muted-foreground hover:text-destructive"
+                  onClick={() => remove(preview.id)}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={() => setPreview(null)}
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center p-4">
+              {preview.mime_type.startsWith("video/") ? (
+                // biome-ignore lint/a11y/useMediaCaption: user-uploaded content has no captions
+                <video
+                  src={preview.url}
+                  controls
+                  className="max-h-[70vh] rounded"
+                />
+              ) : (
+                <img
+                  src={preview.url}
+                  alt={preview.filename}
+                  className="max-h-[70vh] rounded"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
