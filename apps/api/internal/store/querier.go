@@ -10,7 +10,20 @@ import (
 
 type Querier interface {
 	ActivateUser(ctx context.Context, id string) (User, error)
+	AdminDeleteApiKey(ctx context.Context, id string) error
+	AdminDeleteAsset(ctx context.Context, id string) error
+	AdminDeleteDevice(ctx context.Context, id string) error
+	AdminDeleteUser(ctx context.Context, id string) error
+	AdminGetAssetByID(ctx context.Context, id string) (Asset, error)
+	AdminGetUserByID(ctx context.Context, id string) (User, error)
 	ClearQueue(ctx context.Context, userID string) error
+	CountActiveUsers(ctx context.Context) (int64, error)
+	CountApiKeys(ctx context.Context) (int64, error)
+	CountAssets(ctx context.Context) (int64, error)
+	CountDevices(ctx context.Context) (int64, error)
+	CountDevicesByUser(ctx context.Context, userID string) (int64, error)
+	CountOnlineDevices(ctx context.Context) (int64, error)
+	CountUsers(ctx context.Context) (int64, error)
 	CreateAPIKey(ctx context.Context, arg CreateAPIKeyParams) (ApiKey, error)
 	CreateAsset(ctx context.Context, arg CreateAssetParams) (Asset, error)
 	CreateAutomation(ctx context.Context, arg CreateAutomationParams) (Automation, error)
@@ -38,8 +51,16 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByGoogleID(ctx context.Context, googleID *string) (User, error)
 	GetUserByID(ctx context.Context, id string) (User, error)
+	HasSpotifyToken(ctx context.Context, userID string) (bool, error)
+	ListAllApiKeys(ctx context.Context) ([]ListAllApiKeysRow, error)
+	ListAllAssets(ctx context.Context) ([]ListAllAssetsRow, error)
+	ListAllDevices(ctx context.Context) ([]ListAllDevicesRow, error)
+	ListAllUsers(ctx context.Context) ([]User, error)
 	RenameDevice(ctx context.Context, arg RenameDeviceParams) (Device, error)
 	SetDeviceOffline(ctx context.Context, deviceID string) error
+	SetUserActivation(ctx context.Context, arg SetUserActivationParams) (User, error)
+	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
+	SumAssetBytes(ctx context.Context) (int64, error)
 	UpdateAutomationActive(ctx context.Context, arg UpdateAutomationActiveParams) error
 	UpdateDeviceLastSeen(ctx context.Context, arg UpdateDeviceLastSeenParams) error
 	UpdateScheduleActive(ctx context.Context, arg UpdateScheduleActiveParams) error

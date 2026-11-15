@@ -1,13 +1,19 @@
-.PHONY: web api agent db migrate build-agent
+.PHONY: web app admin api agent db migrate build-agent
 
 web:
 	cd apps/web && pnpm dev
+
+app:
+	cd apps/app && pnpm dev
+
+admin:
+	cd apps/admin && pnpm dev
 
 api:
 	cd apps/api && go run cmd/api/main.go
 
 agent:
-	cd apps/agent && BITBUS_CONFIG_PATH=./config.dev.json go run cmd/api/main.go
+	cd apps/agent && go run cmd/api/main.go
 
 db:
 	docker compose up -d postgres

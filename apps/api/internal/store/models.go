@@ -106,4 +106,5 @@ type User struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	IsActivated bool      `json:"is_activated"`
+	IsAdmin     bool      `json:"is_admin"`
 }

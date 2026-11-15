@@ -14,6 +14,8 @@ type Config struct {
 	GoogleClientSecret  string
 	GoogleRedirectURL   string
 	FrontendURL         string
+	AdminFrontendURL    string
+	AdminEmails         string
 	SpotifyClientID     string
 	SpotifyClientSecret string
 	SpotifyRedirectURL  string
@@ -44,6 +46,8 @@ func Load() (*Config, error) {
 		GoogleClientSecret:  *required["GOOGLE_CLIENT_SECRET"],
 		GoogleRedirectURL:   getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/auth/google/callback"),
 		FrontendURL:         getEnv("FRONTEND_URL", "http://localhost:3000"),
+		AdminFrontendURL:    getEnv("ADMIN_FRONTEND_URL", "http://localhost:3002"),
+		AdminEmails:         getEnv("ADMIN_EMAILS", ""),
 		SpotifyClientID:     getEnv("SPOTIFY_CLIENT_ID", ""),
 		SpotifyClientSecret: getEnv("SPOTIFY_CLIENT_SECRET", ""),
 		SpotifyRedirectURL:  getEnv("SPOTIFY_REDIRECT_URL", "http://localhost:5001/spotify/callback"),

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
@@ -14,13 +15,14 @@ import (
 
 // Handler exposes the Google OAuth flow and logout.
 type Handler struct {
-	service     *Service
-	oauthConfig *oauth2.Config
-	frontendURL string
+	service         *Service
+	oauthConfig     *oauth2.Config
+	frontendURL     string
+	adminFrontendURL string
 }
 
-func NewHandler(service *Service, oauthConfig *oauth2.Config, frontendURL string) *Handler {
-	return &Handler{service: service, oauthConfig: oauthConfig, frontendURL: frontendURL}
+func NewHandler(service *Service, oauthConfig *oauth2.Config, frontendURL, adminFrontendURL string) *Handler {
+	return &Handler{service: service, oauthConfig: oauthConfig, frontendURL: frontendURL, adminFrontendURL: adminFrontendURL}
 }
 
 // RegisterRoutes mounts auth endpoints on the given router group.
@@ -35,8 +37,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 }
 
 // GoogleLogin redirects the user to Google's OAuth2 consent page.
+// Pass ?app=admin to redirect back to the admin frontend after auth.
 func (h *Handler) GoogleLogin(c *gin.Context) {
-	url := h.oauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOnline)
+	state := "state-token"
+	if c.Query("app") == "admin" {
+		state = "state-token:admin"
+	}
+	url := h.oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOnline)
 	c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
@@ -48,8 +55,16 @@ func (h *Handler) GoogleLogin(c *gin.Context) {
 // Success  → FRONTEND_URL/auth/callback?token=<jwt>
 // Inactive → FRONTEND_URL/login?error=not_activated
 func (h *Handler) GoogleCallback(c *gin.Context) {
+	state := c.Query("state")
+	isAdmin := strings.HasSuffix(state, ":admin")
+
+	baseURL := h.frontendURL
+	if isAdmin {
+		baseURL = h.adminFrontendURL
+	}
+
 	redirect := func(path string) {
-		c.Redirect(http.StatusTemporaryRedirect, h.frontendURL+path)
+		c.Redirect(http.StatusTemporaryRedirect, baseURL+path)
 	}
 
 	code := c.Query("code")
@@ -84,9 +99,13 @@ func (h *Handler) GoogleCallback(c *gin.Context) {
 		return
 	}
 
-	// Block unactivated accounts — admin must set is_activated = true in DB.
 	if !user.IsActivated {
 		redirect("/login?error=not_activated")
+		return
+	}
+
+	if isAdmin && !user.IsAdmin {
+		redirect("/login?error=not_admin")
 		return
 	}
 

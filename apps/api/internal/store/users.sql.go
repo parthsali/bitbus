@@ -10,7 +10,7 @@ import (
 )
 
 const activateUser = `-- name: ActivateUser :one
-UPDATE users SET is_activated = true, updated_at = NOW() WHERE id = $1 RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated
+UPDATE users SET is_activated = true, updated_at = NOW() WHERE id = $1 RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin
 `
 
 func (q *Queries) ActivateUser(ctx context.Context, id string) (User, error) {
@@ -25,6 +25,7 @@ func (q *Queries) ActivateUser(ctx context.Context, id string) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }
@@ -32,7 +33,7 @@ func (q *Queries) ActivateUser(ctx context.Context, id string) (User, error) {
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (email, name, avatar_url, google_id)
 VALUES ($1, $2, $3, $4)
-RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated
+RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin
 `
 
 type CreateUserParams struct {
@@ -59,12 +60,13 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, name, avatar_url, google_id, created_at, updated_at, is_activated FROM users WHERE email = $1
+SELECT id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -79,12 +81,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const getUserByGoogleID = `-- name: GetUserByGoogleID :one
-SELECT id, email, name, avatar_url, google_id, created_at, updated_at, is_activated FROM users WHERE google_id = $1
+SELECT id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin FROM users WHERE google_id = $1
 `
 
 func (q *Queries) GetUserByGoogleID(ctx context.Context, googleID *string) (User, error) {
@@ -99,12 +102,13 @@ func (q *Queries) GetUserByGoogleID(ctx context.Context, googleID *string) (User
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, email, name, avatar_url, google_id, created_at, updated_at, is_activated FROM users WHERE id = $1
+SELECT id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id string) (User, error) {
@@ -119,6 +123,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id string) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }
@@ -130,7 +135,7 @@ SET name       = $1,
     google_id  = $3,
     updated_at = NOW()
 WHERE id = $4
-RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated
+RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin
 `
 
 type UpdateUserParams struct {
@@ -157,12 +162,13 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }
 
 const updateUserName = `-- name: UpdateUserName :one
-UPDATE users SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated
+UPDATE users SET name = $1, updated_at = NOW() WHERE id = $2 RETURNING id, email, name, avatar_url, google_id, created_at, updated_at, is_activated, is_admin
 `
 
 type UpdateUserNameParams struct {
@@ -182,6 +188,7 @@ func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.IsActivated,
+		&i.IsAdmin,
 	)
 	return i, err
 }

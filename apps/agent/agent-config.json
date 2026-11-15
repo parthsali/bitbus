@@ -1,0 +1,8 @@
+{
+    "backend_url": "wss://localhost:8080/ws",
+    "device_id": "your-device-uuid",
+    "device_secret": "your-device-plain-secret",
+    "brightness": 80,
+    "matrix_rows": 32,
+    "matrix_cols": 64
+}

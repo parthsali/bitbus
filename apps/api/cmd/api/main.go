@@ -15,6 +15,7 @@ import (
 	"github.com/parthsali/bitbus/apps/api/internal/hub"
 	"github.com/parthsali/bitbus/apps/api/internal/middleware"
 	"github.com/parthsali/bitbus/apps/api/internal/migrator"
+	adminModule "github.com/parthsali/bitbus/apps/api/internal/modules/admin"
 	apikeysModule "github.com/parthsali/bitbus/apps/api/internal/modules/apikeys"
 	assetsModule "github.com/parthsali/bitbus/apps/api/internal/modules/assets"
 	authModule "github.com/parthsali/bitbus/apps/api/internal/modules/auth"
@@ -67,7 +68,7 @@ func main() {
 
 	// --- Wire modules ---
 	userHandler := usersModule.NewHandler(usersModule.NewService(queries))
-	authHandler := authModule.NewHandler(authModule.NewService(queries, cfg.JWTSecret), oauthConfig, cfg.FrontendURL)
+	authHandler := authModule.NewHandler(authModule.NewService(queries, cfg.JWTSecret, cfg.AdminEmails), oauthConfig, cfg.FrontendURL, cfg.AdminFrontendURL)
 	spotifySvc := spotifyModule.NewService(queries, cfg.SpotifyClientID, cfg.SpotifyClientSecret, cfg.SpotifyRedirectURL)
 	spotifyHandler := spotifyModule.NewHandler(spotifySvc, cfg.FrontendURL)
 
@@ -90,9 +91,16 @@ func main() {
 	// --- Router ---
 	r := gin.Default()
 
-	// CORS — allow the Next.js frontend to call the API
+	// CORS — allow the Next.js frontends to call the API
+	allowedOrigins := []string{cfg.FrontendURL, cfg.AdminFrontendURL}
 	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", cfg.FrontendURL)
+		origin := c.GetHeader("Origin")
+		for _, allowed := range allowedOrigins {
+			if allowed != "" && origin == allowed {
+				c.Header("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type,Authorization")
@@ -130,6 +138,13 @@ func main() {
 		apikeysHandler.RegisterRoutes(protected.Group("/developer/keys"))
 		assetsHandler.RegisterRoutes(protected.Group("/assets"))
 	}
+
+	// Admin routes — require both valid JWT and is_admin = true
+	adminHandler := adminModule.NewHandler(adminModule.NewService(queries))
+	adminGroup := r.Group("/admin")
+	adminGroup.Use(middleware.Auth(cfg.JWTSecret))
+	adminGroup.Use(middleware.Admin())
+	adminHandler.RegisterRoutes(adminGroup)
 
 	if cfg.SpotifyClientID == "" || cfg.SpotifyClientSecret == "" {
 		log.Println("WARNING: SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET not set, Spotify OAuth will not work")

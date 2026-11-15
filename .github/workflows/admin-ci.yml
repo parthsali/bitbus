@@ -1,0 +1,57 @@
+name: Admin App CI
+
+on:
+  pull_request:
+    paths:
+      - "apps/admin/**"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/admin/**"
+
+jobs:
+  validate-and-build:
+    name: Lint and Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/admin
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: "apps/admin/pnpm-lock.yaml"
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/apps/admin/.next/cache
+          key: ${{ runner.os }}-nextjs-admin-${{ hashFiles('apps/admin/pnpm-lock.yaml') }}-${{ hashFiles('apps/admin/**/*.ts', 'apps/admin/**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-admin-${{ hashFiles('apps/admin/pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Linter
+        run: pnpm run lint
+
+      - name: Type Check
+        run: pnpm run typecheck
+
+      - name: Build Next.js Application
+        run: pnpm run build

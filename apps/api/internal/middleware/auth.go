@@ -11,14 +11,16 @@ import (
 
 // Context keys injected by the Auth middleware.
 const (
-	UserIDKey = "userID"
-	EmailKey  = "email"
+	UserIDKey  = "userID"
+	EmailKey   = "email"
+	IsAdminKey = "isAdmin"
 )
 
 // Claims is the JWT payload shape used across the app.
 type Claims struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
+	UserID  string `json:"user_id"`
+	Email   string `json:"email"`
+	IsAdmin bool   `json:"is_admin"`
 	jwt.RegisteredClaims
 }
 
@@ -53,6 +55,7 @@ func Auth(jwtSecret string) gin.HandlerFunc {
 
 		c.Set(UserIDKey, claims.UserID)
 		c.Set(EmailKey, claims.Email)
+		c.Set(IsAdminKey, claims.IsAdmin)
 		c.Next()
 	}
 }

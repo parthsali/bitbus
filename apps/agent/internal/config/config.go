@@ -21,7 +21,7 @@ type Config struct {
 	MatrixCols int `json:"matrix_cols"`
 }
 
-const defaultConfigPath = "/etc/bitbus-agent/config.json"
+const defaultConfigPath = "agent-config.json" // default path for config file
 
 // Load reads config from the path in BITBUS_CONFIG_PATH env var, or the default path.
 // Individual fields can be overridden by environment variables.
