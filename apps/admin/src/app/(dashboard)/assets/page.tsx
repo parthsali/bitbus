@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api";
 
 interface Asset {
@@ -29,6 +30,7 @@ function formatBytes(bytes: number): string {
 
 export default function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,6 +55,13 @@ export default function AssetsPage() {
     }
   }
 
+  const filtered = assets.filter(
+    (a) =>
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
+      a.filename.toLowerCase().includes(search.toLowerCase()) ||
+      (a.owner_name ?? "").toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <div className="flex w-full flex-1 flex-col">
       <div className="flex items-center justify-between border-b border-border px-8 py-6">
@@ -69,6 +78,13 @@ export default function AssetsPage() {
       </div>
 
       <div className="px-8 py-6">
+        <Input
+          placeholder="Search by name, filename, or owner…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 max-w-sm"
+        />
+
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -80,12 +96,12 @@ export default function AssetsPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-lg border border-border">
-            {assets.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-                No assets uploaded.
+                No assets found.
               </div>
             ) : (
-              assets.map((asset, i) => (
+              filtered.map((asset, i) => (
                 <div
                   key={asset.id}
                   className={`flex items-center gap-4 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}

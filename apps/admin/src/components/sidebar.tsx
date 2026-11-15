@@ -16,16 +16,18 @@ const groups = [
   {
     label: null,
     items: [
-      { label: "Dashboard", href: "/", icon: LayoutDashboard },
+      { label: "Overview", href: "/", icon: LayoutDashboard },
       { label: "Users", href: "/users", icon: Users },
       { label: "Devices", href: "/devices", icon: Cpu },
       { label: "Assets", href: "/assets", icon: FolderOpen },
-      { label: "API Keys", href: "/api-keys", icon: Key },
     ],
   },
   {
-    label: "System",
-    items: [{ label: "Settings", href: "/settings", icon: Settings }],
+    label: "More",
+    items: [
+      { label: "API Keys", href: "/api-keys", icon: Key },
+      { label: "Settings", href: "/settings", icon: Settings },
+    ],
   },
 ];
 
@@ -74,7 +76,7 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-border px-4 py-3">
-        <p className="text-xs text-muted-foreground/30">Admin v0.1.0</p>
+        <p className="text-xs text-muted-foreground/30">v0.1.0</p>
       </div>
     </aside>
   );

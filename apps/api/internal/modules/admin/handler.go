@@ -60,7 +60,6 @@ func (h *Handler) GetUser(c *gin.Context) {
 
 type updateUserRequest struct {
 	IsActivated *bool `json:"is_activated"`
-	IsAdmin     *bool `json:"is_admin"`
 }
 
 func (h *Handler) UpdateUser(c *gin.Context) {
@@ -70,35 +69,18 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	id := c.Param("id")
-	ctx := c.Request.Context()
-
-	var lastUser interface{}
-
-	if req.IsActivated != nil {
-		user, err := h.svc.SetUserActivation(ctx, id, *req.IsActivated)
-		if err != nil {
-			response.Internal(c, err)
-			return
-		}
-		lastUser = user
-	}
-
-	if req.IsAdmin != nil {
-		user, err := h.svc.SetUserAdmin(ctx, id, *req.IsAdmin)
-		if err != nil {
-			response.Internal(c, err)
-			return
-		}
-		lastUser = user
-	}
-
-	if lastUser == nil {
+	if req.IsActivated == nil {
 		response.BadRequest(c, "no fields to update")
 		return
 	}
 
-	response.OK(c, lastUser)
+	user, err := h.svc.SetUserActivation(c.Request.Context(), c.Param("id"), *req.IsActivated)
+	if err != nil {
+		response.Internal(c, err)
+		return
+	}
+
+	response.OK(c, user)
 }
 
 func (h *Handler) DeleteUser(c *gin.Context) {

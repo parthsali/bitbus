@@ -14,6 +14,17 @@ interface JwtUser {
   is_admin: boolean;
 }
 
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center border-b border-border px-5 py-3.5 last:border-0">
+      <p className="w-44 shrink-0 text-sm text-muted-foreground">{label}</p>
+      <p className="flex-1 text-sm">
+        {value ?? <span className="text-muted-foreground/40">—</span>}
+      </p>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const [user, setUser] = useState<JwtUser | null>(null);
 
@@ -21,6 +32,15 @@ export default function SettingsPage() {
     const token = getToken();
     if (token) setUser(decodeJwt<JwtUser>(token));
   }, []);
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "?";
 
   return (
     <div className="flex w-full flex-1 flex-col">
@@ -31,65 +51,73 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <div className="px-8 py-6 space-y-6">
-        <div>
-          <h2 className="text-sm font-medium mb-3">Your Profile</h2>
-          <div className="overflow-hidden rounded-lg border border-border">
-            {user && (
-              <div className="flex items-center gap-4 px-4 py-4">
-                <Avatar className="size-12">
-                  <AvatarImage
-                    src={user.avatar_url}
-                    alt={user.name}
-                    referrerPolicy="no-referrer"
-                  />
-                  <AvatarFallback className="text-sm font-semibold bg-muted">
-                    {user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <Badge
-                      variant="secondary"
-                      className="text-[10px] px-1.5 py-0 h-4"
-                    >
-                      Admin
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
+      <div className="flex flex-col gap-8 px-8 py-6">
+        {/* Profile */}
+        {user && (
+          <div>
+            <div className="flex items-center gap-5 mb-6">
+              <Avatar className="size-14">
+                <AvatarImage
+                  src={user.avatar_url}
+                  alt={user.name}
+                  referrerPolicy="no-referrer"
+                />
+                <AvatarFallback className="text-base font-semibold bg-muted">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-base font-semibold">{user.name}</p>
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-1.5 py-0 h-4"
+                  >
+                    Admin
+                  </Badge>
                 </div>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>
-            )}
+            </div>
+
+            <p className="mb-3 text-sm font-medium text-muted-foreground">
+              Account
+            </p>
+            <div className="overflow-hidden rounded-lg border border-border">
+              <InfoRow label="Name" value={user.name} />
+              <InfoRow label="Email" value={user.email} />
+              <InfoRow
+                label="User ID"
+                value={
+                  <span className="font-mono text-xs">{user.user_id}</span>
+                }
+              />
+              <InfoRow label="Role" value="Administrator" />
+            </div>
           </div>
-        </div>
+        )}
 
         <Separator />
 
+        {/* System */}
         <div>
-          <h2 className="text-sm font-medium mb-3">System Information</h2>
-          <div className="overflow-hidden rounded-lg border border-border divide-y divide-border">
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-muted-foreground">Platform</span>
-              <span className="text-sm">Bitbus</span>
-            </div>
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-muted-foreground">
-                Admin Panel Version
-              </span>
-              <span className="text-sm font-mono">0.1.0</span>
-            </div>
-            <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-muted-foreground">API URL</span>
-              <span className="text-sm font-mono text-muted-foreground">
-                {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001"}
-              </span>
-            </div>
+          <p className="mb-3 text-sm font-medium text-muted-foreground">
+            System
+          </p>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <InfoRow label="Platform" value="Bitbus" />
+            <InfoRow
+              label="Admin Panel"
+              value={<span className="font-mono">v0.1.0</span>}
+            />
+            <InfoRow
+              label="API URL"
+              value={
+                <span className="font-mono text-xs text-muted-foreground">
+                  {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5001"}
+                </span>
+              }
+            />
           </div>
         </div>
       </div>

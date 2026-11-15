@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api";
 
 interface Device {
@@ -38,6 +39,7 @@ function formatUptime(seconds: number): string {
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,6 +62,15 @@ export default function DevicesPage() {
     }
   }
 
+  const filtered = devices.filter(
+    (d) =>
+      d.name.toLowerCase().includes(search.toLowerCase()) ||
+      (d.owner_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (d.owner_email ?? "").toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const onlineCount = devices.filter((d) => d.is_online).length;
+
   return (
     <div className="flex w-full flex-1 flex-col">
       <div className="flex items-center justify-between border-b border-border px-8 py-6">
@@ -69,10 +80,28 @@ export default function DevicesPage() {
             All registered devices across users.
           </p>
         </div>
-        <Badge variant="secondary">{devices.length} total</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary">{devices.length} total</Badge>
+          {onlineCount > 0 && (
+            <Badge variant="outline" className="gap-1.5">
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
+              </span>
+              {onlineCount} online
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="px-8 py-6">
+        <Input
+          placeholder="Search by device name or owner…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 max-w-sm"
+        />
+
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -84,12 +113,12 @@ export default function DevicesPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-lg border border-border">
-            {devices.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-                No devices registered.
+                No devices found.
               </div>
             ) : (
-              devices.map((device, i) => (
+              filtered.map((device, i) => (
                 <div
                   key={device.id}
                   className={`flex items-center gap-4 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}

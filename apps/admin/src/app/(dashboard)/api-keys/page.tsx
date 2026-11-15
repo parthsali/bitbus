@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { apiFetch } from "@/lib/api";
 
 interface ApiKey {
@@ -20,6 +21,7 @@ interface ApiKey {
 
 export default function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKey[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,6 +44,13 @@ export default function ApiKeysPage() {
     }
   }
 
+  const filtered = keys.filter(
+    (k) =>
+      k.name.toLowerCase().includes(search.toLowerCase()) ||
+      (k.owner_name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (k.owner_email ?? "").toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <div className="flex w-full flex-1 flex-col">
       <div className="flex items-center justify-between border-b border-border px-8 py-6">
@@ -55,6 +64,13 @@ export default function ApiKeysPage() {
       </div>
 
       <div className="px-8 py-6">
+        <Input
+          placeholder="Search by name or owner…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mb-4 max-w-sm"
+        />
+
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -66,12 +82,12 @@ export default function ApiKeysPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-lg border border-border">
-            {keys.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-                No API keys created.
+                No API keys found.
               </div>
             ) : (
-              keys.map((key, i) => (
+              filtered.map((key, i) => (
                 <div
                   key={key.id}
                   className={`flex items-center gap-4 px-4 py-3 ${i > 0 ? "border-t border-border" : ""}`}

@@ -1,6 +1,7 @@
 "use client";
 
-import { Shield, Trash2 } from "lucide-react";
+import { ChevronRight, Shield, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -48,20 +49,6 @@ export default function UsersPage() {
       setUsers((prev) => prev.map((u) => (u.id === user.id ? data.data : u)));
       toast.success(
         `${user.name} ${!user.is_activated ? "activated" : "deactivated"}`,
-      );
-    }
-  }
-
-  async function toggleAdmin(user: User) {
-    const res = await apiFetch(`/admin/users/${user.id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ is_admin: !user.is_admin }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setUsers((prev) => prev.map((u) => (u.id === user.id ? data.data : u)));
-      toast.success(
-        `${user.name} ${!user.is_admin ? "promoted to admin" : "removed from admin"}`,
       );
     }
   }
@@ -145,9 +132,12 @@ export default function UsersPage() {
 
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-medium">
+                      <Link
+                        href={`/users/${user.id}`}
+                        className="truncate text-sm font-medium hover:underline"
+                      >
                         {user.name}
-                      </p>
+                      </Link>
                       {user.is_admin && (
                         <Badge
                           variant="secondary"
@@ -173,17 +163,16 @@ export default function UsersPage() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs text-muted-foreground">Admin</span>
-                    <Switch
-                      checked={user.is_admin}
-                      onCheckedChange={() => toggleAdmin(user)}
-                    />
-                  </div>
-
                   <p className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(user.created_at).toLocaleDateString()}
                   </p>
+
+                  <Link
+                    href={`/users/${user.id}`}
+                    className="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  >
+                    <ChevronRight className="size-3.5" />
+                  </Link>
 
                   <Button
                     variant="ghost"

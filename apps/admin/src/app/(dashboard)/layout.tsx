@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { TopNav } from "@/components/top-nav";
 
@@ -8,9 +9,13 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <TopNav />
+      <Suspense>
+        <TopNav />
+      </Suspense>
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+        <Suspense>
+          <Sidebar />
+        </Suspense>
         <main className="flex flex-1 flex-col overflow-y-auto bg-background">
           {children}
         </main>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Grip } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
@@ -9,25 +10,28 @@ function CallbackHandler() {
 
   useEffect(() => {
     const token = searchParams.get("token");
-    if (token) {
-      document.cookie = `bitbus_token=${token}; path=/; max-age=86400; SameSite=Lax`;
-      router.replace("/");
-    } else {
+    if (!token) {
       router.replace("/login?error=auth_failed");
+      return;
     }
-  }, [router, searchParams]);
+    const maxAge = 60 * 60 * 24;
+    document.cookie = `bitbus_token=${token}; path=/; max-age=${maxAge}; samesite=lax`;
+    router.replace("/");
+  }, [searchParams, router]);
 
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p className="text-sm text-muted-foreground">Signing in…</p>
-    </div>
-  );
+  return null;
 }
 
 export default function AuthCallbackPage() {
   return (
-    <Suspense>
-      <CallbackHandler />
-    </Suspense>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <Grip className="size-5 animate-pulse text-foreground" />
+        <p className="text-sm text-muted-foreground">Signing you in…</p>
+      </div>
+      <Suspense>
+        <CallbackHandler />
+      </Suspense>
+    </div>
   );
 }
