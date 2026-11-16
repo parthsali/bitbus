@@ -38,6 +38,7 @@ type Querier interface {
 	DeleteQueueItem(ctx context.Context, arg DeleteQueueItemParams) error
 	DeleteSchedule(ctx context.Context, arg DeleteScheduleParams) error
 	DeleteSpotifyToken(ctx context.Context, userID string) error
+	GetAPIKeysByPrefix(ctx context.Context, keyPrefix string) ([]GetAPIKeysByPrefixRow, error)
 	GetAPIKeysByUser(ctx context.Context, userID string) ([]ApiKey, error)
 	GetAsset(ctx context.Context, arg GetAssetParams) (Asset, error)
 	GetAssetsByUser(ctx context.Context, userID string) ([]Asset, error)
@@ -61,6 +62,7 @@ type Querier interface {
 	SetUserActivation(ctx context.Context, arg SetUserActivationParams) (User, error)
 	SetUserAdmin(ctx context.Context, arg SetUserAdminParams) (User, error)
 	SumAssetBytes(ctx context.Context) (int64, error)
+	TouchAPIKeyLastUsed(ctx context.Context, id string) error
 	UpdateAutomationActive(ctx context.Context, arg UpdateAutomationActiveParams) error
 	UpdateDeviceLastSeen(ctx context.Context, arg UpdateDeviceLastSeenParams) error
 	UpdateScheduleActive(ctx context.Context, arg UpdateScheduleActiveParams) error

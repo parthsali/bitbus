@@ -7,6 +7,9 @@ package store
 
 import (
 	"context"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createAPIKey = `-- name: CreateAPIKey :one
@@ -56,6 +59,55 @@ func (q *Queries) DeleteAPIKey(ctx context.Context, arg DeleteAPIKeyParams) erro
 	return err
 }
 
+const getAPIKeysByPrefix = `-- name: GetAPIKeysByPrefix :many
+SELECT k.id, k.user_id, k.name, k.key_hash, k.key_prefix, k.last_used_at, k.created_at, u.email, u.is_admin
+FROM api_keys k
+JOIN users u ON u.id = k.user_id
+WHERE k.key_prefix = $1
+`
+
+type GetAPIKeysByPrefixRow struct {
+	ID         string             `json:"id"`
+	UserID     string             `json:"user_id"`
+	Name       string             `json:"name"`
+	KeyHash    string             `json:"key_hash"`
+	KeyPrefix  string             `json:"key_prefix"`
+	LastUsedAt pgtype.Timestamptz `json:"last_used_at"`
+	CreatedAt  time.Time          `json:"created_at"`
+	Email      string             `json:"email"`
+	IsAdmin    bool               `json:"is_admin"`
+}
+
+func (q *Queries) GetAPIKeysByPrefix(ctx context.Context, keyPrefix string) ([]GetAPIKeysByPrefixRow, error) {
+	rows, err := q.db.Query(ctx, getAPIKeysByPrefix, keyPrefix)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetAPIKeysByPrefixRow{}
+	for rows.Next() {
+		var i GetAPIKeysByPrefixRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Name,
+			&i.KeyHash,
+			&i.KeyPrefix,
+			&i.LastUsedAt,
+			&i.CreatedAt,
+			&i.Email,
+			&i.IsAdmin,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAPIKeysByUser = `-- name: GetAPIKeysByUser :many
 SELECT id, user_id, name, key_hash, key_prefix, last_used_at, created_at FROM api_keys WHERE user_id = $1 ORDER BY created_at DESC
 `
@@ -86,4 +138,13 @@ func (q *Queries) GetAPIKeysByUser(ctx context.Context, userID string) ([]ApiKey
 		return nil, err
 	}
 	return items, nil
+}
+
+const touchAPIKeyLastUsed = `-- name: TouchAPIKeyLastUsed :exec
+UPDATE api_keys SET last_used_at = NOW() WHERE id = $1
+`
+
+func (q *Queries) TouchAPIKeyLastUsed(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, touchAPIKeyLastUsed, id)
+	return err
 }

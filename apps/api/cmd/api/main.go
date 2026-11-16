@@ -103,7 +103,7 @@ func main() {
 		}
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type,Authorization")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-API-Key")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
@@ -125,9 +125,9 @@ func main() {
 	// WebSocket — no JWT middleware here; the WS handler authenticates internally
 	wsHandler.RegisterRoutes(r.Group("/"))
 
-	// All other routes require a valid JWT
+	// All other routes require a valid JWT or API key
 	protected := r.Group("/")
-	protected.Use(middleware.Auth(cfg.JWTSecret))
+	protected.Use(middleware.AuthOrAPIKey(cfg.JWTSecret, queries))
 	{
 		userHandler.RegisterRoutes(protected.Group("/users"))
 		spotifyHandler.RegisterProtectedRoutes(protected.Group("/spotify"))
@@ -139,10 +139,10 @@ func main() {
 		assetsHandler.RegisterRoutes(protected.Group("/assets"))
 	}
 
-	// Admin routes — require both valid JWT and is_admin = true
+	// Admin routes — require valid auth (JWT or API key) and is_admin = true
 	adminHandler := adminModule.NewHandler(adminModule.NewService(queries, assetsSvc))
 	adminGroup := r.Group("/admin")
-	adminGroup.Use(middleware.Auth(cfg.JWTSecret))
+	adminGroup.Use(middleware.AuthOrAPIKey(cfg.JWTSecret, queries))
 	adminGroup.Use(middleware.Admin())
 	adminHandler.RegisterRoutes(adminGroup)
 
