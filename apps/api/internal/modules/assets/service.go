@@ -8,7 +8,6 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
-	"google.golang.org/api/option"
 
 	"github.com/parthsali/bitbus/apps/api/internal/store"
 )
@@ -26,7 +25,8 @@ func NewService(ctx context.Context, queries *store.Queries, gcsBucket string) (
 	if gcsBucket != "" {
 		// Uses Application Default Credentials automatically.
 		// Set GOOGLE_APPLICATION_CREDENTIALS for local dev; on GCP the attached SA is used.
-		c, err := storage.NewClient(ctx, option.WithScopes("https://www.googleapis.com/auth/cloud-platform"))
+		// ADC on Cloud Run provides cloud-platform scope by default, which covers SignBlob for signed URLs.
+		c, err := storage.NewClient(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("gcs client: %w", err)
 		}
